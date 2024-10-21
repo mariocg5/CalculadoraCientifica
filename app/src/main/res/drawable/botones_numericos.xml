@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- res/drawable/custom_button_background_no_rounded.xml -->
+    <shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <!-- Fondo del botón -->
+        <solid android:color="#0099cc" /> <!-- Color de fondo azul claro -->
+
+        <!-- Bordes más gruesos -->
+        <stroke
+            android:width="4dp"
+            android:color="#005b99" /> <!-- Color del borde azul oscuro -->
+
+        <!-- Esquinas rectas (sin redondear) -->
+        <corners android:radius="0dp" /> <!-- Sin redondeo -->
+    </shape>
+
+
+</selector>

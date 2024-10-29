@@ -1,10 +1,13 @@
 package com.example.calculadoracientifica
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -36,12 +39,13 @@ class MainActivity : AppCompatActivity() {
     lateinit var botonNum8: Button
     lateinit var botonNum9: Button
     lateinit var botonNum0: Button
-    lateinit var botonNumPi: Button
+    lateinit var botonHistorial: Button
     lateinit var botonPunto: Button
     lateinit var botonSuma: Button
     lateinit var botonResta: Button
     lateinit var botonMultiplicacion: Button
     lateinit var botonIgual: Button
+    lateinit var botonNumPi: Button
 
     var suma: Boolean = false
     var resta: Boolean = false
@@ -59,6 +63,7 @@ class MainActivity : AppCompatActivity() {
     var fact: Boolean = false
     var numero: Array<Double?> = arrayOfNulls(20)
     var resultado: Double? = null
+    var historial: MutableList<String> = mutableListOf()
 
 
 
@@ -70,8 +75,6 @@ class MainActivity : AppCompatActivity() {
         pantallaSecundaria = findViewById(R.id.PantallaSecundaria)
         botonBorraTodo = findViewById(R.id.BotonBorraTodo)
         botonBorraUno = findViewById(R.id.BotonBorraUno)
-        botonAbreParentesis = findViewById(R.id.BotonAbreParentesis)
-        botonCierraParentesis = findViewById(R.id.BotonCierraParentesis)
         botonSeno = findViewById(R.id.BotonSeno)
         botonCoseno = findViewById(R.id.BotonCoseno)
         botonTangente = findViewById(R.id.BotonTangente)
@@ -92,12 +95,13 @@ class MainActivity : AppCompatActivity() {
         botonNum8 = findViewById(R.id.BotonNum8)
         botonNum9 = findViewById(R.id.BotonNum9)
         botonNum0 = findViewById(R.id.BotonNum0)
-        botonNumPi = findViewById(R.id.BotonNumPi)
+        botonHistorial = findViewById(R.id.BotonHistorial)
         botonPunto = findViewById(R.id.BotonPunto)
         botonSuma = findViewById(R.id.BotonSuma)
         botonResta = findViewById(R.id.BotonResta)
         botonMultiplicacion = findViewById(R.id.BotonMultiplicacion)
         botonIgual = findViewById(R.id.BotonIgual)
+        botonNumPi = findViewById(R.id.BotonNumPi)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -135,6 +139,10 @@ class MainActivity : AppCompatActivity() {
         botonNum9.setOnClickListener {
             pantallaPrimaria.text = (pantallaPrimaria.text.toString() + "9")
         }
+        botonNumPi.setOnClickListener {
+            pantallaPrimaria.text = (pantallaPrimaria.text.toString() + "3.1415")
+            pantallaSecundaria.text = "π"
+        }
         botonPunto.setOnClickListener {
             var a: String = pantallaPrimaria.text.toString()
             if (!decimal) {
@@ -165,7 +173,8 @@ class MainActivity : AppCompatActivity() {
             if (a.isEmpty()) {
                 pantallaPrimaria.text = "-"
                 // Asumimos que el próximo número ingresado será negativo
-                numero[0] = 0.0 // Inicializamos numero[0] a 0.0 para que el próximo número sea tratado como negativo
+                numero[0] =
+                    0.0 // Inicializamos numero[0] a 0.0 para que el próximo número sea tratado como negativo
             } else {
                 try {
                     numero[0] = a.toDouble()
@@ -173,10 +182,12 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "Por favor ingresa un número válido.", Toast.LENGTH_SHORT)
                         .show()
                 }
+                resta = true
+                pantallaPrimaria.text=""
+                decimal = false
             }
-            resta=true
-            decimal = false
         }
+
         botonMultiplicacion.setOnClickListener {
             var a: String = pantallaPrimaria.text.toString()
             if (a.isEmpty()) {
@@ -210,15 +221,8 @@ class MainActivity : AppCompatActivity() {
                     .show()
             }
         }
-        botonAbreParentesis.setOnClickListener {
-            pantallaPrimaria.text = (pantallaPrimaria.text.toString() + "(")
-        }
-        botonCierraParentesis.setOnClickListener {
-            pantallaPrimaria.text = (pantallaPrimaria.text.toString() + ")")
-        }
-        botonNumPi.setOnClickListener {
-            pantallaPrimaria.text = (pantallaPrimaria.text.toString() + "3.1415")
-            pantallaSecundaria.text = "π"
+        botonHistorial.setOnClickListener {
+            mostrarHistorial()
         }
         botonSeno.setOnClickListener {
             var a: String = pantallaPrimaria.text.toString()
@@ -228,11 +232,13 @@ class MainActivity : AppCompatActivity() {
             }
             try {
                 numero[0] = a.toDouble()
+                val numero1 = numero[0] ?: 0.0
                 se = true
                 val valorEnRadianes = convertirGradosARadianes(numero[0]!!)
                 resultado = Math.sin(valorEnRadianes)
                 pantallaPrimaria.text = resultado.toString()
                 decimal = false
+                guardarEnHistorial("El seno de $numero1 es $resultado")
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "Por favor ingresa un número válido.", Toast.LENGTH_SHORT)
                     .show()
@@ -246,12 +252,13 @@ class MainActivity : AppCompatActivity() {
             }
             try {
                 numero[0] = a.toDouble()
+                val numero1 = numero[0] ?: 0.0
                 cos = true
                 val valorEnRadianes = convertirGradosARadianes(numero[0]!!)
                 resultado = Math.cos(valorEnRadianes)
                 pantallaPrimaria.text = resultado.toString()
-
                 decimal = false
+                guardarEnHistorial("El coseno de $numero1  es $resultado")
             } catch (e: NumberFormatException) {
                 Toast.makeText(this, "Por favor ingresa un número válido.", Toast.LENGTH_SHORT)
                     .show()
@@ -265,10 +272,12 @@ class MainActivity : AppCompatActivity() {
             }
             try {
                 numero[0] = a.toDouble()
+                val numero1 = numero[0] ?: 0.0
                 tan = true
                 val valorEnRadianes = convertirGradosARadianes(numero[0]!!)
                 resultado = Math.tan(valorEnRadianes)
                 pantallaPrimaria.text = resultado.toString()
+                guardarEnHistorial("La tangente de $numero1  es $resultado")
 
                 decimal = false
             } catch (e: NumberFormatException) {
@@ -309,7 +318,9 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 } else {
                     resultado = Math.log10(numero[0]!!)
+                    val numero1 = numero[0] ?: 0.0
                     pantallaPrimaria.text = resultado.toString()
+                    guardarEnHistorial("El logaritmo de $numero1  es $resultado")
                 }
                 decimal = false
             } catch (e: NumberFormatException) {
@@ -335,7 +346,9 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 } else {
                     resultado = Math.log(numero[0]!!)
+                    val numero1 = numero[0] ?: 0.0
                     pantallaPrimaria.text = resultado.toString()
+                    guardarEnHistorial("El neperiano de $numero1  es $resultado")
                 }
                 decimal = false
             } catch (e: NumberFormatException) {
@@ -361,7 +374,9 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                 } else {
                     resultado = Math.sqrt(numero[0]!!)
+                    val numero1 = numero[0] ?: 0.0
                     pantallaPrimaria.text = resultado.toString()
+                    guardarEnHistorial("La raiz cuadrada de $numero1  es $resultado")
                 }
                 decimal = false
             } catch (e: NumberFormatException) {
@@ -414,6 +429,7 @@ class MainActivity : AppCompatActivity() {
                     if (entero >= 0) {
                         val fact = factorial (entero)
                         pantallaPrimaria.text = fact.toString()
+                        guardarEnHistorial("El factorial de $entero es $fact")
                     } else {
                         Toast.makeText(
                             this,
@@ -438,31 +454,51 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
                 try{
-                    numero[1]=a.toDouble()
+                    numero[1] = a.toDoubleOrNull() ?: 0.0
+
+                    if (numero[1] == null) {
+                        Toast.makeText(this, "Por favor ingresa un número válido.", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
                     if (suma == true) {
                         resultado = numero[0]?.plus(numero[1] ?: 0.0) // Asegurarse de que ambos valores no sean nulos
+                        val numero1 = numero[0] ?: 0.0
+                        val numero2 = numero[1] ?: 0.0
                         pantallaPrimaria.text = resultado.toString()
                         suma = false
+                        guardarEnHistorial("Resultado de la suma entre $numero1  y $numero2  es $resultado")
                         numero[0] = null
                         numero[1] = null
+
                     } else if (resta==true){
                         resultado=numero[0]?.minus(numero[1]?:0.0)
+                        val numero1 = numero[0] ?: 0.0
+                        val numero2 = numero[1] ?: 0.0
                         pantallaPrimaria.text = resultado.toString()
                         resta=false
+                        guardarEnHistorial("Resultado de la resta entre $numero1  y $numero2 es $resultado")
                         numero[0] = null
                         numero[1] = null
+
                     } else if (multi==true){
                         resultado=numero[0]?.times((numero[1]?:0.0))
+                        val numero1 = numero[0] ?: 0.0
+                        val numero2 = numero[1] ?: 0.0
                         pantallaPrimaria.text = resultado.toString()
                         multi=false
+                        guardarEnHistorial("Resultado de la multiplicacion entre $numero1  y $numero2 es $resultado")
                         numero[0] = null
                         numero[1] = null
+
                     } else if(divide==true){
                         if (numero[1] == 0.0) {
                             Toast.makeText(this, "No se puede dividir entre cero.", Toast.LENGTH_SHORT).show()
                             return@setOnClickListener
                         } else {
                             resultado=numero[0]!! / numero[1]!!
+                            val numero1 = numero[0] ?: 0.0
+                            val numero2 = numero[1] ?: 0.0
+                            guardarEnHistorial("Resultado de la division entre $numero1  y $numero2 es $resultado")
                         }
                         pantallaPrimaria.text = resultado.toString()
                         divide=false
@@ -470,18 +506,26 @@ class MainActivity : AppCompatActivity() {
                         numero[1] = null
                     } else if (porc==true){
                         resultado=(numero[0]!! * (numero[1] ?: 0.0)) / 100
+                        val numero1 = numero[0] ?: 0.0
+                        val numero2 = numero[1] ?: 0.0
                         pantallaPrimaria.text = resultado.toString()
                         porc=false
+                        guardarEnHistorial("El $numero1 por ciento de $numero2 es $resultado")
                         numero[0] = null
                         numero[1] = null
+
                     } else if(exp==true){
                         resultado=Math.pow(numero[0]!!, numero[1] ?: 0.0)
+                        val numero1 = numero[0] ?: 0.0
+                        val numero2 = numero[1] ?: 0.0
                         pantallaPrimaria.text = resultado.toString()
                         exp=false
+                        guardarEnHistorial("$numero1 elevado a  $numero2 es $resultado")
                         numero[0] = null
                         numero[1] = null
 
                     }
+
             }  catch (e: NumberFormatException) {
                     Toast.makeText(this, "Por favor ingresa un número válido.", Toast.LENGTH_SHORT).show()
         }
@@ -497,6 +541,16 @@ class MainActivity : AppCompatActivity() {
     }
     fun convertirGradosARadianes(grados: Double): Double {
         return Math.toRadians(grados)
+    }
+
+    fun guardarEnHistorial(entrada:String){
+        historial.add(entrada)
+    }
+
+    fun mostrarHistorial(){
+        val intent = Intent(this, HistorialActivity::class.java)
+        intent.putStringArrayListExtra("HISTORIAL", ArrayList(historial))
+        startActivity(intent)
     }
 
 }

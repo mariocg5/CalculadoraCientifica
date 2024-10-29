@@ -57,7 +57,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:orientation="horizontal"
-                android:weightSum="4"
+                android:weightSum="3"
                 android:background="@color/dark_grey"
                 >
 
@@ -87,26 +87,16 @@
                     android:textSize="25sp"/>
                 <Button
                     android:layout_width="0dp"
-                    android:id="@+id/BotonAbreParentesis"
+                    android:id="@+id/BotonHistorial"
                     android:layout_height="wrap_content"
                     android:layout_margin="3dp"
                     android:layout_weight="1"
                     android:background="@color/black_2"
                     android:padding="6dp"
-                    android:text="("
-                    android:textColor="@color/yellow"
+                    android:text="Data"
+                    android:textColor="@color/white"
                     android:textSize="25sp"/>
-                <Button
-                    android:layout_width="0dp"
-                    android:id="@+id/BotonCierraParentesis"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="3dp"
-                    android:layout_weight="1"
-                    android:background="@color/black_2"
-                    android:padding="6dp"
-                    android:text=")"
-                    android:textColor="@color/yellow"
-                    android:textSize="25sp"/>
+
 
             </LinearLayout>
 
@@ -413,9 +403,10 @@
                 android:weightSum="4"
                 android:background="@color/dark_grey"
                 >
+
                 <Button
-                    android:layout_width="0dp"
                     android:id="@+id/BotonNumPi"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_margin="3dp"
                     android:layout_weight="1"
@@ -423,7 +414,8 @@
                     android:padding="6dp"
                     android:text="π"
                     android:textColor="@color/white"
-                    android:textSize="25sp"/>
+                    android:textSize="25sp" />
+
                 <Button
                     android:layout_width="0dp"
                     android:id="@+id/BotonNum0"
